@@ -1,0 +1,253 @@
+{
+  "name": "GEN AGENT",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You're a helpful assistant that can use multiple tools. Your job is to use the context of the input message and pass the message as is to the relevant tool.\n\nToday is {{ $now.format('cccc') }} the {{ $now.format('yyyy-MM-dd HH:mm') }}."
+        }
+      },
+      "id": "02488af0-9614-4763-88d9-347e9905266e",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1120,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "41db1433-17db-47da-9b36-45fe114ec509",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        800,
+        780
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zv9jwmzyrKJb2jTX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "6fce159e-8b3f-4a85-962f-ba977bcc041c",
+      "name": "Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        980,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Calendar",
+        "description": "Call this tool to modify calendar",
+        "workflowId": {
+          "__rl": true,
+          "value": "73amL0DaXAHjGW8M",
+          "mode": "list",
+          "cachedResultName": "Calendar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "INPUT": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('INPUT', `Send the user message if related to calendar modification.`, 'string') }}"
+          },
+          "matchingColumns": [
+            "INPUT"
+          ],
+          "schema": [
+            {
+              "id": "INPUT",
+              "displayName": "INPUT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        780
+      ],
+      "id": "78d3c14f-a025-4fa8-b34c-3026b2c8b87d",
+      "name": "Calendar"
+    },
+    {
+      "parameters": {
+        "name": "News",
+        "description": "Call this tool to get news report.d",
+        "workflowId": {
+          "__rl": true,
+          "value": "KHREQRhpZLbf3ood",
+          "mode": "list",
+          "cachedResultName": "My Sub-Workflow 1"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        780
+      ],
+      "id": "23720592-9f6a-40f9-a710-046f27da25ba",
+      "name": "News"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        780
+      ],
+      "id": "e1fda52d-20d7-4995-b692-5fa572313913",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        500,
+        0
+      ],
+      "id": "539d1e96-34b0-4a11-8828-a3d798e9adba",
+      "name": "Telegram",
+      "webhookId": "0186c897-b74c-436a-8a0b-72189475447f",
+      "credentials": {
+        "telegramApi": {
+          "id": "8aTJSFeTPCNR6h1l",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        760,
+        480
+      ],
+      "id": "40211f20-deda-4866-99a1-15ec7b67c3c1",
+      "name": "When chat message received",
+      "webhookId": "52cbd469-2eb6-4e6b-b931-27eb1df97b12"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f969e0f9-82c6-4535-973e-6832ae8b1a1f",
+  "meta": {
+    "instanceId": "376de1611444a6d877eb04d4d76d66cabf4239f4368ca454a5a82cec59e58a3b"
+  },
+  "id": "B2YeQONvTKkwUSbS",
+  "tags": []
+}
