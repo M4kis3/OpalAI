@@ -1,0 +1,314 @@
+{
+  "name": "Calendar",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "INPUT"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -80,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.INPUT }}",
+        "options": {
+          "systemMessage": "=YOU ARE A CALENDAR MANAGEMENT AGENT. TODAY IS {{ $now.format('cccc') }} THE {{ $now.format('yyyy-MM-dd HH:mm') }}.  \n\nYOU HAVE ACCESS TO TOOLS FOR MODIFYING CALENDAR:\nWHEN GIVING TOOLS START TIME, END TIME ALWAYS SEND IN yyyy-MM-dd HH:mm format.\n\nCREATE EVENT:\nGET START TIME, END TIME AND EVENT SUMMARY FROM INPUT CONTEXT.\n\n\nGET EVENT:\nUSED TO GET CALENDAR EVENTS WITHIN A TIME SPAN, OR FIND CALENDAR EVENT BY EVENT SUMMARY QUERY.\n\nDELETE EVENT:\nWHEN DELETING EVENTS, SEND INSTRUCTRIONS ON WHAT EVENTS TO DELETE TO TOOL."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        480,
+        340
+      ],
+      "id": "4d47f9b4-2a02-4cae-a4c9-ceb47ea9d95c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        380,
+        620
+      ],
+      "id": "c9bf6297-128f-466c-b5a1-89e9fa904164",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "zv9jwmzyrKJb2jTX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to get calendar events",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "maotakuplays@gmail.com",
+          "mode": "list",
+          "cachedResultName": "maotakuplays@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', `Start time for get event time span`, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', `End time for get event time span, default 1 day after start time.`, 'string') }}",
+        "options": {
+          "fields": "items(id,start,end,summary)",
+          "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', `event summary for getting events by query`, 'string') }}",
+          "recurringEventHandling": "expand",
+          "timeZone": {
+            "__rl": true,
+            "value": "Asia/Kolkata",
+            "mode": "list",
+            "cachedResultName": "Asia/Kolkata"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        680,
+        620
+      ],
+      "id": "af887ac0-b644-475e-b5e9-bc2f1c72a99b",
+      "name": "Get",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CmxpUxq62DCLl3gi",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "create",
+        "description": "Call this tool to create event",
+        "workflowId": {
+          "__rl": true,
+          "value": "uK8XktK8q9BrXnjV",
+          "mode": "list",
+          "cachedResultName": "create event"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Start time": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_time', `Start time of event to be created`, 'string') }}",
+            "End time": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_time', `End time of event,if not given start time plus 1 hour`, 'string') }}",
+            "Event summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_summary', `Event summary`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Start time",
+              "displayName": "Start time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "End time",
+              "displayName": "End time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Event summary",
+              "displayName": "Event summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        560,
+        620
+      ],
+      "id": "5e89e61b-79f3-40ad-8d5c-928907289857",
+      "name": "create"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to delete a single calendar event.",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "maotakuplays@gmail.com",
+          "mode": "list",
+          "cachedResultName": "maotakuplays@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', `Google Calendar Event ID for event to be deleted`, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        700,
+        920
+      ],
+      "id": "ba5b38ee-ffa9-4b32-91c1-ee371375262e",
+      "name": "DELETE",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CmxpUxq62DCLl3gi",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "delete",
+        "description": "call this tool to delete calendar events",
+        "workflowId": {
+          "__rl": true,
+          "value": "6BcsF0T9cwq6ZE9C",
+          "mode": "list",
+          "cachedResultName": "Delete"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "INPUT": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('INPUT', `DELETE TOOL INPUT`, 'string') }}"
+          },
+          "matchingColumns": [
+            "INPUT"
+          ],
+          "schema": [
+            {
+              "id": "INPUT",
+              "displayName": "INPUT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        820,
+        620
+      ],
+      "id": "ca53852d-5f86-4a7d-a991-c1209c256d79",
+      "name": "Delete"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Delete": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3081cdac-35e6-4c58-8d73-d5d140d3ae8a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "376de1611444a6d877eb04d4d76d66cabf4239f4368ca454a5a82cec59e58a3b"
+  },
+  "id": "73amL0DaXAHjGW8M",
+  "tags": []
+}

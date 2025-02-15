@@ -1,0 +1,482 @@
+{
+  "name": "GEN AGENT",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=You're a helpful assistant that can use multiple tools. Your job is to use the context of the input message and pass the message as is to the relevant tool.\n\nToday is {{ $now.format('cccc') }} the {{ $now.format('yyyy-MM-dd HH:mm') }}.\n\nFor calendar modification, use calendar tool.\n\nFor getting daily news, use news tool.\n\nFor storing notes and adding them to knowledge base, use notes tool. Send only the relevant note to the tool.\n\nYou have access to a knowledge base of taken notes, when user asks a direct question that is not related to any tool, search knowledge base and give a relevant answer. If unable to find an answer in knowledge base for a fact based question, use wikipedia tool.\n\nWhen asked 'get form' send the user this link https://docs.google.com/forms/d/e/1FAIpQLSeB35oI6FeZdsAum-1iTY1dcXDizXn0XxL8B9REax0WnlS7fA/viewform?usp=preview"
+        }
+      },
+      "id": "02488af0-9614-4763-88d9-347e9905266e",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1120,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "41db1433-17db-47da-9b36-45fe114ec509",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        800,
+        780
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zv9jwmzyrKJb2jTX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Calendar",
+        "description": "Call this tool to modify calendar",
+        "workflowId": {
+          "__rl": true,
+          "value": "73amL0DaXAHjGW8M",
+          "mode": "list",
+          "cachedResultName": "Calendar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "INPUT": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('INPUT', `Send the user message if related to calendar modification.`, 'string') }}"
+          },
+          "matchingColumns": [
+            "INPUT"
+          ],
+          "schema": [
+            {
+              "id": "INPUT",
+              "displayName": "INPUT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        780
+      ],
+      "id": "78d3c14f-a025-4fa8-b34c-3026b2c8b87d",
+      "name": "Calendar"
+    },
+    {
+      "parameters": {
+        "name": "News",
+        "description": "Call this tool to get news report.d",
+        "workflowId": {
+          "__rl": true,
+          "value": "KHREQRhpZLbf3ood",
+          "mode": "list",
+          "cachedResultName": "News"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        780
+      ],
+      "id": "23720592-9f6a-40f9-a710-046f27da25ba",
+      "name": "News"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        780
+      ],
+      "id": "e1fda52d-20d7-4995-b692-5fa572313913",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        540,
+        520
+      ],
+      "id": "40211f20-deda-4866-99a1-15ec7b67c3c1",
+      "name": "When chat message received",
+      "webhookId": "52cbd469-2eb6-4e6b-b931-27eb1df97b12"
+    },
+    {
+      "parameters": {
+        "name": "store_notes",
+        "description": "call this tool to store notes",
+        "workflowId": {
+          "__rl": true,
+          "value": "ewZi1tfxAarfSaqD",
+          "mode": "list",
+          "cachedResultName": "Notes"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Note": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Note', `Note to be added to knowledge base`, 'string') }}"
+          },
+          "matchingColumns": [
+            "Note"
+          ],
+          "schema": [
+            {
+              "id": "Note",
+              "displayName": "Note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        780
+      ],
+      "id": "13eef536-aa76-430d-b57b-39ebbaa3b437",
+      "name": "notes"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1000,
+        760
+      ],
+      "id": "2f53ee5b-f8d5-4d2a-83f0-8b929f33a373",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "raXOI4m3sETufUww",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "retrieve_notes",
+        "toolDescription": "get stored notes from knowledge base",
+        "tableName": {
+          "__rl": true,
+          "value": "notes",
+          "mode": "list",
+          "cachedResultName": "notes"
+        },
+        "options": {
+          "queryName": "match_notes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        2040,
+        620
+      ],
+      "id": "0c231655-7ad0-4325-acb4-3bc6d17fee03",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "txVy6Km0K19BXO3e",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "mxbai-embed-large:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        820
+      ],
+      "id": "a78c7daa-bf2d-46f1-a446-cb89fa1225f4",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "oqCCLCeLQ12ub0iD",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        780
+      ],
+      "id": "2b940386-c41a-44a9-9eff-c5a7e9a8c4e4",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_chat_histories",
+          "mode": "list",
+          "cachedResultName": "n8n_chat_histories"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        660,
+        1020
+      ],
+      "id": "bff0cc1e-befc-4082-b845-e61c6432f156",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "raXOI4m3sETufUww",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1660,
+        440
+      ],
+      "id": "539d1e96-34b0-4a11-8828-a3d798e9adba",
+      "name": "Telegram",
+      "webhookId": "0186c897-b74c-436a-8a0b-72189475447f",
+      "credentials": {
+        "telegramApi": {
+          "id": "8aTJSFeTPCNR6h1l",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        260
+      ],
+      "id": "a223b2dd-a437-4efb-9f59-f5c8e7522541",
+      "name": "Telegram Trigger",
+      "webhookId": "0bac8e4e-cf08-4d9c-9552-341e4b219cda",
+      "credentials": {
+        "telegramApi": {
+          "id": "8aTJSFeTPCNR6h1l",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "notes": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        []
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d7254f8e-86d3-4340-9d63-7a606e77958e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "376de1611444a6d877eb04d4d76d66cabf4239f4368ca454a5a82cec59e58a3b"
+  },
+  "id": "B2YeQONvTKkwUSbS",
+  "tags": []
+}

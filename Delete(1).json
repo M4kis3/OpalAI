@@ -1,0 +1,271 @@
+{
+  "name": "Delete",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "INPUT"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        260,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=delete event working out "
+            },
+            {
+              "content": "=\nYOU ARE A HIGHLY EFFICIENT EVENT PARSING TOOL DESIGNED TO EXTRACT RELEVANT DETAILS FOR EVENT DELETION. YOUR PRIMARY TASK IS TO IDENTIFY AND STRUCTURE EVENT INFORMATION FROM USER INPUT.  \nTHE CURRENT TIME IS {{ $now }}\n### INSTRUCTIONS ###  \n\n- **EXTRACT THREE FIELDS:**  \n  1. **START TIME** – Identify the event's start time. If not provided, leave it blank.  \n  2. **END TIME** – Identify the event's end time. If not provided, leave it blank.  \n  3. **EVENT SUMMARY** – Extract the event description if available. If missing, leave it blank.  \n\n- **TIME FORMATTING:**  \n  - Convert all date-time values to the ISO 8601 format: `YYYY-MM-DDTHH:MM:SS+ZZ:ZZ`.  \n  - Example format: `2025-02-14T15:30:00+05:30`.  \n\n- **OUTPUT REQUIREMENTS:**  \n  - Return only an **array** containing the extracted values.  \n  - The output **MUST NOT** include any additional text, explanation, or formatting outside the array.  \n  - Example output:  \n    ```json  \n    [\"2025-02-14T10:00:00+05:30\", \"2025-02-14T12:00:00+05:30\", \"Team Meeting\"]  \n    ```  \n\n- **INTERPRETING RELATIVE TIME REFERENCES:**  \n  - If the user requests deletion of all events \"tomorrow,\" assume:  \n    - **Start Time:** Beginning of tomorrow (`00:00:00`)  \n    - **End Time:** End of tomorrow (`23:59:59`)  \n    - **Event Summary:** Blank  \n  - Example output if today is **February 14, 2025**:  \n    ```json  \n    [\"2025-02-15T00:00:00+05:30\", \"2025-02-15T23:59:59+05:30\", \"\"]  \n    ```  \n\n- **HANDLING EVENT NAME ONLY:**  \n  - If only an event name is given without a time reference, return:  \n    - **Start Time:** Blank  \n    - **End Time:** Blank  \n    - **Event Summary:** Extracted event name  \n  - Example: If user says **\"Delete the 'Project Update' event\"**, output:  \n    ```json  \n    [\"\", \"\", \"Project Update\"]  \n    ```  \n\n### WHAT NOT TO DO ###  \n- **DO NOT** include any extra text, headers, or formatting beyond the required array.  \n- **DO NOT** modify or assume details not present in the user input.  \n- **DO NOT** request clarification or ask follow-up questions.  \n- **DO NOT** output in any format other than an array.  \n\n",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        680,
+        360
+      ],
+      "id": "8ed629ed-2a61-4097-bd8e-4f544c31b798",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "zv9jwmzyrKJb2jTX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "maotakuplays@gmail.com",
+          "mode": "list",
+          "cachedResultName": "maotakuplays@gmail.com"
+        },
+        "timeMin": "={{ $json.message.content.startTime }}",
+        "timeMax": "={{ $json.message.content.endTime }}",
+        "options": {
+          "fields": "items(id)",
+          "query": "",
+          "recurringEventHandling": "expand",
+          "timeZone": {
+            "__rl": true,
+            "value": "Asia/Kolkata",
+            "mode": "list",
+            "cachedResultName": "Asia/Kolkata"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1140,
+        360
+      ],
+      "id": "97edcb53-d066-4d97-a423-986d6f0cab4a",
+      "name": "Google Calendar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CmxpUxq62DCLl3gi",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "maotakuplays@gmail.com",
+          "mode": "list",
+          "cachedResultName": "maotakuplays@gmail.com"
+        },
+        "eventId": "={{ $json.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1580,
+        360
+      ],
+      "id": "d671b255-736c-467d-9ead-8bb75be96848",
+      "name": "Google Calendar1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CmxpUxq62DCLl3gi",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        360
+      ],
+      "id": "7c99f9ad-7c69-4239-a449-c46f3df107fa",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ad15e9c9-a188-420f-8373-559354f9595d",
+              "leftValue": "={{ $json}}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        360
+      ],
+      "id": "a4723604-468f-4004-9499-8325347934d4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "16819468-89e3-443c-8748-2a1d1b7ecd3b",
+              "name": "response",
+              "value": "no events to be deleted",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1560,
+        620
+      ],
+      "id": "c873864d-6ca2-4d5e-8123-41b14fbf0424",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar1": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4dcec7a0-75d4-4e88-bddf-45500b633473",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "376de1611444a6d877eb04d4d76d66cabf4239f4368ca454a5a82cec59e58a3b"
+  },
+  "id": "6BcsF0T9cwq6ZE9C",
+  "tags": []
+}
