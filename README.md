@@ -12,10 +12,11 @@ go to supabase and create new project
 run this sql
 ```
 DROP FUNCTION IF EXISTS match_entries(VECTOR(1024), INT, JSONB);
+DROP table news;
+DROP table notes;
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE TABLE news (
   id BIGSERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
   content TEXT NOT NULL,
   metadata JSONB,
   embedding VECTOR(1024) -- Adjust the dimension based on your embedding model
@@ -57,6 +58,7 @@ END;
 $$;
 CREATE INDEX ON news USING ivfflat (embedding vector_cosine_ops);
 CREATE INDEX ON notes USING ivfflat (embedding vector_cosine_ops);
+
 ```
 install vs code and run streamlit app with webhook
 install tailscale on desktop and phone and configure
